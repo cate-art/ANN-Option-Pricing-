@@ -1,0 +1,4 @@
+*.csv
+images/*.png
+src/src/__pycache__
+models/*.h5

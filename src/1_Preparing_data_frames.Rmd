@@ -1,0 +1,109 @@
+---
+title: "Preparing data frames"
+author: "Caterina Stifano"
+date: "16/4/2020"
+output: html_document
+---
+```{r}
+#clan the workspace
+rm(list = ls())
+```
+
+```{r}
+#packages
+library(tidyverse)
+library(fOptions)
+library(ggplot2)
+library(roll)
+library(lubridate)
+library(imputeTS)
+library(arules)
+```
+
+#LOADING
+```{r}
+#Loading the excel file
+index_series <- read.csv("../data/index_series.csv")
+option_characteristics <- read.csv("../data/option_characteristics.csv")
+option_series <- read.csv ("../data/option_series.csv")
+treasury_bill <- read.csv ("../data/DTB3.csv")
+```
+
+#MERGING
+```{r}
+#merge option_series & option_characteristics
+option = option_series %>% left_join(option_characteristics)
+
+#merge option & index
+option_file = option %>% left_join(index_series)
+```
+
+#COMPUTE THE MATURITY AND DEVIDE STRIKE BY 1000
+```{r}
+#trasform format in date format for both exdate and date
+option_file = option_file %>% mutate(exdate=as.Date(exdate))
+option_file = option_file %>% mutate(date=as.Date(date))
+
+#trasform format in date format for both exdate and date
+treasury_bill = treasury_bill %>% mutate(DATE=as.Date(DATE))
+
+#time to maturity 
+option_file$maturity <- option_file$exdate - option_file$date
+
+#Devide strike by 1000
+option_file$strike_price <- option_file$strike_price/1000
+
+#Keep only the observation between 1996 and 2014 in treasury bill
+treasury_bill <- subset(treasury_bill, DATE > as.Date("1995-12-29") & DATE < as.Date("2015-01-01") )
+```
+
+#FILL THE NANS . AND DEVIDE THE INTEREST BY 100
+```{r}
+#Replace the . with 0 in the treasury_bill dataframe
+treasury_bill$DTB3 = as.character(treasury_bill$DTB3)
+treasury_bill$DTB3[treasury_bill$DTB3 == "."] <- "NA"
+treasury_bill$DTB3 = as.double(treasury_bill$DTB3)
+treasury_bill$DTB3 = na_ma(treasury_bill$DTB3, k =1, weighting = "simple")
+
+#Devide interest by 100
+treasury_bill$DTB3 <- treasury_bill$DTB3/100
+```
+
+#CHANGE THE NAMES
+```{r}
+#change the name in the dataframe option_file
+names(option_file)[names(option_file) == "strike_price"] <- "strike"
+names(option_file)[names(option_file) == "best_bid"] <- "bid"
+names(option_file)[names(option_file) == "best_offer"] <- "ask"
+names(option_file)[names(option_file) == "impl_volatility"] <- "implied"
+names(option_file)[names(option_file) == "strike_price"] <- "strike"
+names(option_file)[names(option_file) == "open_interest"] <- "interest"
+names(option_file)[names(option_file) == "cp_flag"] <- "cpflag"
+
+#change the name in the dataframe treasury_bill
+names(treasury_bill)[names(treasury_bill) == "DATE"] <- "date-rf"
+names(treasury_bill)[names(treasury_bill) == "DTB3"] <- "interest"
+
+#change the name in the dataframe index_series
+names(index_series)[names(index_series) == "date"] <- "date_cboe"
+names(index_series)[names(index_series) == "return"] <- "returns"
+```
+
+#DROP COLUMN WE DON'T NEED FROM OPTION FILE DATASET
+```{r}
+option_file$return <- NULL
+option_file$volume <- NULL
+option_file$interest <- NULL
+option_file$implied <- NULL
+option_file$delta <- NULL
+option_file$gamma <- NULL
+option_file$vega <- NULL
+option_file$theta <- NULL
+```
+
+#EXPORT THE DATAFRAMES
+```{r}
+write.csv(option_file[200000:205000,], "../data/option.csv", row.names=FALSE)
+write.csv(index_series, "../data/index.csv", row.names=FALSE)
+write.csv(treasury_bill, "../data/interest.csv", row.names=FALSE)
+```
