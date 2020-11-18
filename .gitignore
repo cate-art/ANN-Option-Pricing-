@@ -1,4 +1,5 @@
 *.csv
 images/*.png
 src/src/__pycache__
+src/.Rhistory
 models/*.h5
