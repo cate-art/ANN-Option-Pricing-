@@ -1,1 +1,1 @@
-This repository contains the code I used during my [master thesis](https://drive.google.com/file/d/10HyWkxlwQhEKOBWlki_VtLC-yPQkAnAL/view?usp=sharing) where I do a comparison between the Black and Scholes model and Artificial NeuralNetworks for option pricing and deltahedging strategy.
+This repository contains the code I used during my [master thesis](https://drive.google.com/file/d/10HyWkxlwQhEKOBWlki_VtLC-yPQkAnAL/view?usp=sharing) where I do a comparison between the Black and Scholes model and Artificial Neural Networks for option pricing and delta hedging strategy.
