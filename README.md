@@ -6,7 +6,7 @@ The datasets used in this project are:
 * **Option_characteristics.csv**. Which contains the options' flag, the expiration date and the strike price.
 
 <p align="center">
-    <img src="images/option_characteristic.jpg" width="300" height="">
+    <img src="images/option_characteristic.JPG" width="300" height="">
   </a>
 </p>
 
